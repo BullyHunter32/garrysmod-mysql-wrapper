@@ -13,7 +13,7 @@ local credentials = {
 local bSuccess = pcall(require, "mysqloo")
 
 local QUERY_QUEUE = {}
-function Rust.MySQL:Query(query, callback)
+function Rust.MySQL:Query(query, callback, errCallback)
     callback = callback or function()end
     if not self.Initialized then
         table.insert(QUERY_QUEUE, {query, callback})
@@ -30,7 +30,7 @@ function Rust.MySQL:Query(query, callback)
             callback(data)
         end
 
-        q.onError = function( err, sql )
+        q.onError = type(errCallback) == "function" and errCallback or function( err, sql )
             ErrorNoHalt("=============================\n[FATAL ERROR][MySQL] ERROR: ", err, "Query = \""..tostring(sql).."\"\n=============================\n")
         end
 
